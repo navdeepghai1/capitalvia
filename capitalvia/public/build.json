@@ -1,0 +1,14 @@
+{
+  "css/capitalvia.min.css":[
+    "public/css/capitalvia.css"
+  ],
+  "js/capitalvia.min.js":[
+    "public/js/capitalvia.js"
+  ],
+  "css/chartjs.min.css":[
+    "public/css/libs/Chart.2.9.3.min.css"
+  ],
+  "js/chartjs.min.js":[
+    "public/js/libs/Chart2.9.3.min.js"
+  ]
+}

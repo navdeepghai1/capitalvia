@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include capitalvia *.css
+recursive-include capitalvia *.csv
+recursive-include capitalvia *.html
+recursive-include capitalvia *.ico
+recursive-include capitalvia *.js
+recursive-include capitalvia *.json
+recursive-include capitalvia *.md
+recursive-include capitalvia *.png
+recursive-include capitalvia *.py
+recursive-include capitalvia *.svg
+recursive-include capitalvia *.txt
+recursive-exclude capitalvia *.pyc
