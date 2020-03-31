@@ -17,7 +17,7 @@ import functools
 import erpnext
 from erpnext.accounts.utils import get_fiscal_year
 from erpnext.accounts.report.utils import get_currency, convert_to_presentation_currency
-from frappe.utils import (flt, getdate, get_first_day, add_months, add_days, formatdate, datetime, date_diff)
+from frappe.utils import (flt, cint, getdate, get_first_day, add_months, add_days, formatdate, datetime, date_diff)
 
 from calendar import monthrange
 
@@ -52,42 +52,43 @@ def get_period_list(filters, periodicity, accumulated_values=False):
     year_start_date = getdate(filters.get("from_date"))
     year_end_date = getdate(filters.get("to_date"))
     company = filters.get("company")
-    months_to_add = {
+    months_to_add = cint({
     	"Yearly": 12,
     	"Half-Yearly": 6,
     	"Quarterly": 3,
     	"Monthly": 1
-    }[periodicity]
+    }[periodicity])
 
     period_list = []
 
-    start_date = year_start_date
+    starting_date = year_start_date
     months = get_months_frequency(year_start_date, year_end_date)
+    r =  months//months_to_add
+    if(not (months/months_to_add).is_integer()):
+        r += 1
 
-    for i in range(months // months_to_add):
+    for i in range(r):
         period = frappe._dict({
-        	"from_date": start_date
+        	"from_date": starting_date
         })
 
-        to_date = add_months(start_date, months_to_add)
-        start_date = to_date
-
+        to_date = add_months(starting_date, months_to_add)
         if to_date == get_first_day(to_date):
         	# if to_date is the first day, get the last day of previous month
         	to_date = add_days(to_date, -1)
 
+        starting_date = getdate(to_date)
+
         if to_date <= year_end_date:
-        	# the normal case
-        	period.to_date = to_date
+            # the normal case
+            period.to_date = to_date
         else:
-        	# if a fiscal year ends before a 12 month period
-        	period.to_date = year_end_date
+            # if a fiscal year ends before a 12 month period
+            period.to_date = year_end_date
 
-        period.to_date_fiscal_year = get_fiscal_year(period.to_date, company=company)[0]
-        period.from_date_fiscal_year_start_date = get_fiscal_year(period.from_date, company=company)[1]
-
+        #period.to_date_fiscal_year = get_fiscal_year(period.to_date, company=company)[0]
+        #period.from_date_fiscal_year_start_date = get_fiscal_year(period.from_date, company=company)[1]
         period_list.append(period)
-
         if period.to_date == year_end_date:
         	break
 

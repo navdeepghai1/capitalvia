@@ -19,7 +19,6 @@ def get_data(filters=None):
     columns, results  = execute(filters)
     months = get_period_list(filters, "Monthly")
     years = get_period_list(filters, "Yearly")
-
     conditions = get_conditions(filters)
     monthly_data_map = frappe._dict()
     yearly_data_map  = frappe._dict()

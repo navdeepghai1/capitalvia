@@ -35,6 +35,7 @@ capitalvia.MakeBarChart = Class.extend({
     frappe.call({
         "method": "capitalvia.dashboards.dashboard.execute",
         "args": {"args": values},
+        "freeze": true,
         "callback": function(res){
           if(!(res && res.message))
             return false;
