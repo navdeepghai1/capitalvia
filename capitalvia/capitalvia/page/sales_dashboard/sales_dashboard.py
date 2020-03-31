@@ -44,9 +44,18 @@ def get_data(filters=None):
         update_data(monthly_data_map, sales_person, item)
         update_data(yearly_data_map, sales_person, item)
 
+    yearly_labels, yearly_data, yearly_options = process_and_get_data("Yearly Sales Person Data", yearly_data_map, years, random_controller)
+    monthly_labels, monthly_data, monthly_options = process_and_get_data("Monthly Sales Person Data", monthly_data_map, months, random_controller)
+
+    # Reverse to get best sales person records at first
+    yearly_data = sorted(yearly_data, key=lambda i: i['total'], reverse=True)
+    monthly_data = sorted(monthly_data, key=lambda i: i['total'], reverse=True)
+
     data = frappe._dict({
-        "yearly_data":process_and_get_data("Yearly Sales Person Data", yearly_data_map, years, random_controller),
-        "monthly_data": process_and_get_data("Monthly Sales Person Data", monthly_data_map, months, random_controller)
+        "yearly_data": [yearly_labels,
+            yearly_data if(len(yearly_data) <= 10) else yearly_data[:9], yearly_options],
+        "monthly_data": [monthly_labels,
+            monthly_data if(len(monthly_data) <= 10) else monthly_data[:9], monthly_options],
     })
     return data
 
@@ -69,6 +78,7 @@ def process_and_get_data(title, data_map, period_list, random_controller):
     for sales_person, date_wise_data in data_map.items():
         dataset = frappe._dict({
             "label": sales_person,
+            "total": 0.0,
             "data": [],
             "backgroundColor": [],
             "borderColor": "white",
@@ -77,6 +87,7 @@ def process_and_get_data(title, data_map, period_list, random_controller):
         color = random_controller.generate()[0]
         for period in period_list:
             key = (period.from_date, period.to_date)
+            dataset['total'] += flt(date_wise_data[key])
             dataset.data.append(date_wise_data[key])
             dataset.backgroundColor.append(color)
         data.append(dataset)
@@ -85,9 +96,10 @@ def process_and_get_data(title, data_map, period_list, random_controller):
 
 # UPDATE DATA
 def update_data(data, sales_person, item):
+    data[sales_person]['total'] += flt(item.net_total)
     for from_to_date in data[sales_person]:
         if(from_to_date == 'total'):
-            data[sales_person]['total'] += flt(item.net_total)
+            continue
         elif(item.posting_date >= from_to_date[0]
                 and item.posting_date <= from_to_date[1]):
             data[sales_person][from_to_date] += flt(item.net_total)
